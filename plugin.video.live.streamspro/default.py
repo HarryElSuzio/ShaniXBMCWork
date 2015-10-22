@@ -112,6 +112,9 @@ def getSources():
                                 date = ''
                                 credits = ''
                                 genre = ''
+                                director = ''
+                                rating = ''
+                                writer = ''
                                 if i.has_key('thumbnail'):
                                     thumb = i['thumbnail']
                                 if i.has_key('fanart'):
@@ -122,9 +125,15 @@ def getSources():
                                     date = i['date']
                                 if i.has_key('genre'):
                                     genre = i['genre']
+                                if i.has_key('director'):
+                                    director = i['director']
+                                if i.has_key('rating'):
+                                    rating = i['rating']
+                                if i.has_key('writer'):
+                                    writer = i['writer']
                                 if i.has_key('credits'):
                                     credits = i['credits']
-                                addDir(i['title'].encode('utf-8'),i['url'].encode('utf-8'),1,thumb,fanart,desc,genre,date,credits,'source')
+                                addDir(i['title'].encode('utf-8'),i['url'].encode('utf-8'),1,thumb,fanart,desc,genre,director,rating,writer,date,credits,'source')
                         except: traceback.print_exc()
                 else:
                     if len(sources) == 1:
@@ -165,6 +174,12 @@ def addSource(url=None):
             try: source_media['fanart'] = media_info.fanart.string
             except: pass
             try: source_media['genre'] = media_info.genre.string
+            except: pass
+            try: source_media['director'] = media_info.director.string
+            except: pass
+            try: source_media['rating'] = media_info.rating.string
+            except: pass
+            try: source_media['writer'] = media_info.writer.string
             except: pass
             try: source_media['description'] = media_info.description.string
             except: pass
@@ -351,6 +366,27 @@ def getData(url,fanart, data=None):
                     genre = ''
 
                 try:
+                    director = channel('director')[0].string
+                    if director == None:
+                        raise
+                except:
+                    director = ''
+
+                try:
+                    rating = channel('rating')[0].string
+                    if rating == None:
+                        raise
+                except:
+                    rating = ''
+
+                try:
+                    writer = channel('writer')[0].string
+                    if writer == None:
+                        raise
+                except:
+                    writer = ''
+
+                try:
                     date = channel('date')[0].string
                     if date == None:
                         raise
@@ -366,10 +402,10 @@ def getData(url,fanart, data=None):
 
                 try:
                     if linkedUrl=='':
-                        addDir(name.encode('utf-8', 'ignore'),url.encode('utf-8'),2,thumbnail,fanArt,desc,genre,date,credits,True)
+                        addDir(name.encode('utf-8', 'ignore'),url.encode('utf-8'),2,thumbnail,fanArt,desc,genre,director,rating,writer,date,credits,True)
                     else:
                         #print linkedUrl
-                        addDir(name.encode('utf-8'),linkedUrl.encode('utf-8'),1,thumbnail,fanArt,desc,genre,date,None,'source')
+                        addDir(name.encode('utf-8'),linkedUrl.encode('utf-8'),1,thumbnail,fanArt,desc,genre,director,rating,writer,date,None,'source')
                 except:
                     addon_log('There was a problem adding directory from getData(): '+name.encode('utf-8', 'ignore'))
         else:
@@ -458,6 +494,27 @@ def getChannelItems(name,url,fanart):
                 genre = ''
 
             try:
+                director = channel('director')[0].string
+                if director == None:
+                    raise
+            except:
+                director = ''
+
+            try:
+                rating = channel('rating')[0].string
+                if rating == None:
+                    raise
+            except:
+                rating = ''
+
+            try:
+                writer = channel('writer')[0].string
+                if writer == None:
+                    raise
+            except:
+                writer = ''
+
+            try:
                 date = channel('date')[0].string
                 if date == None:
                     raise
@@ -472,7 +529,7 @@ def getChannelItems(name,url,fanart):
                 credits = ''
 
             try:
-                addDir(name.encode('utf-8', 'ignore'),url.encode('utf-8'),3,thumbnail,fanArt,desc,genre,credits,date)
+                addDir(name.encode('utf-8', 'ignore'),url.encode('utf-8'),3,thumbnail,fanArt,desc,genre,director,rating,writer,credits,date)
             except:
                 addon_log('There was a problem adding directory - '+name.encode('utf-8', 'ignore'))
         getItems(items,fanArt)
@@ -674,6 +731,26 @@ def getItems(items,fanart):
                     raise
             except:
                 genre = ''
+            try:
+                director = item('director')[0].string
+                if director == None:
+                    raise
+            except:
+                director = ''
+
+            try:
+                rating = item('rating')[0].string
+                if rating == None:
+                    raise
+            except:
+                rating = ''
+
+            try:
+                writer = item('writer')[0].string
+                if writer == None:
+                    raise
+            except:
+                writer = ''
 
             try:
                 date = item('date')[0].string
@@ -696,7 +773,7 @@ def getItems(items,fanart):
                     for i in url:
                             if  add_playlist == "false":
                                 alt += 1
-                                addLink(i,'%s) %s' %(alt, name.encode('utf-8', 'ignore')),thumbnail,fanArt,desc,genre,date,True,playlist,regexs,total)
+                                addLink(i,'%s) %s' %(alt, name.encode('utf-8', 'ignore')),thumbnail,fanArt,desc,genre,director,rating,writer,date,True,playlist,regexs,total)
                             elif  add_playlist == "true" and  ask_playlist_items == 'true':
                                 if regexs:
                                     playlist.append(i+'&regexs='+regexs)
@@ -707,20 +784,20 @@ def getItems(items,fanart):
                             else:
                                 playlist.append(i)
                     if len(playlist) > 1:
-                        addLink('', name,thumbnail,fanArt,desc,genre,date,True,playlist,regexs,total)
+                        addLink('', name,thumbnail,fanArt,desc,genre,director,rating,writer,date,True,playlist,regexs,total)
                 else:
                     if isXMLSource:
                             if not regexs == None: #<externallink> and <regex>
-                                addDir(name.encode('utf-8'),ext_url[0].encode('utf-8'),1,thumbnail,fanart,desc,genre,date,None,'!!update',regexs,url[0].encode('utf-8'))
-                                #addLink(url[0],name.encode('utf-8', 'ignore')+  '[COLOR yellow]build XML[/COLOR]',thumbnail,fanArt,desc,genre,date,True,None,regexs,total)
+                                addDir(name.encode('utf-8'),ext_url[0].encode('utf-8'),1,thumbnail,fanart,desc,genre,director,rating,writer,date,None,'!!update',regexs,url[0].encode('utf-8'))
+                                #addLink(url[0],name.encode('utf-8', 'ignore')+  '[COLOR yellow]build XML[/COLOR]',thumbnail,fanArt,desc,genre,director,rating,writer,date,True,None,regexs,total)
                             else:
-                                addDir(name.encode('utf-8'),ext_url[0].encode('utf-8'),1,thumbnail,fanart,desc,genre,date,None,'source',None,None)
-                                #addDir(name.encode('utf-8'),url[0].encode('utf-8'),1,thumbnail,fanart,desc,genre,date,None,'source')
+                                addDir(name.encode('utf-8'),ext_url[0].encode('utf-8'),1,thumbnail,fanart,desc,genre,director,rating,writer,date,None,'source',None,None)
+                                #addDir(name.encode('utf-8'),url[0].encode('utf-8'),1,thumbnail,fanart,desc,genre,director,rating,writer,date,None,'source')
                     elif isJsonrpc:
-                        addDir(name.encode('utf-8'),ext_url[0],53,thumbnail,fanart,desc,genre,date,None,'source')
+                        addDir(name.encode('utf-8'),ext_url[0],53,thumbnail,fanart,desc,genre,director,rating,writer,date,None,'source')
                         #xbmc.executebuiltin("Container.SetViewMode(500)")
                     else:
-                        addLink(url[0],name.encode('utf-8', 'ignore'),thumbnail,fanArt,desc,genre,date,True,None,regexs,total)
+                        addLink(url[0],name.encode('utf-8', 'ignore'),thumbnail,fanArt,desc,genre,director,rating,writer,date,True,None,regexs,total)
                     #print 'success'
             except:
                 addon_log('There was a problem adding item - '+name.encode('utf-8', 'ignore'))
@@ -2103,7 +2180,7 @@ def _search(url,name):
         print 'url',url
         pluginquerybyJSON(url)
 
-def addDir(name,url,mode,iconimage,fanart,description,genre,date,credits,showcontext=False,regexs=None,reg_url=None,allinfo={}):
+def addDir(name,url,mode,iconimage,fanart,description,genre,director,rating,writer,date,credits,showcontext=False,regexs=None,reg_url=None,allinfo={}):
 
         u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&fanart="+urllib.quote_plus(fanart)
         ok=True
@@ -2113,7 +2190,7 @@ def addDir(name,url,mode,iconimage,fanart,description,genre,date,credits,showcon
             description += '\n\nDate: %s' %date
         liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
         if len(allinfo) <1 :
-            liz.setInfo(type="Video", infoLabels={ "Title": name, "Plot": description, "Genre": genre, "dateadded": date, "credits": credits })
+            liz.setInfo(type="Video", infoLabels={ "Title": name, "Plot": description, "Genre": genre, "director": director, "rating": rating, "writer": writer, "dateadded": date, "credits": credits })
         else:
             liz.setInfo(type="Video", infoLabels= allinfo)
         liz.setProperty("Fanart_Image", fanart)
@@ -2189,7 +2266,7 @@ def pluginquerybyJSON(url,give_me_result=None,playlist=False):
     if 'audio' in url:
         json_query = uni('{"jsonrpc":"2.0","method":"Files.GetDirectory","params": {"directory":"%s","media":"video", "properties": ["title", "album", "artist", "duration","thumbnail", "year"]}, "id": 1}') %url
     else:
-        json_query = uni('{"jsonrpc":"2.0","method":"Files.GetDirectory","params":{"directory":"%s","media":"video","properties":[ "plot","playcount","director", "genre","votes","duration","trailer","premiered","thumbnail","title","year","dateadded","fanart","rating","season","episode","studio","mpaa"]},"id":1}') %url
+        json_query = uni('{"jsonrpc":"2.0","method":"Files.GetDirectory","params":{"directory":"%s","media":"video","properties":[ "plot","playcount","director", "genre","votes","duration","trailer","premiered","thumbnail","title","year","dateadded","fanart","rating","writer","season","episode","studio","mpaa"]},"id":1}') %url
     json_folder_detail = json.loads(sendJSON(json_query))
     #print json_folder_detail
     if give_me_result:
@@ -2222,7 +2299,7 @@ def pluginquerybyJSON(url,give_me_result=None,playlist=False):
                 addDir(name,url,53,thumbnail,fanart,'','','','',allinfo=meta)
         xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
-def addLink(url,name,iconimage,fanart,description,genre,date,showcontext,playlist,regexs,total,setCookie="",allinfo={}):
+def addLink(url,name,iconimage,fanart,description,genre,director,rating,writer,date,showcontext,playlist,regexs,total,setCookie="",allinfo={}):
         #print 'url,name',url,name
         contextMenu =[]
         try:
@@ -2285,7 +2362,7 @@ def addLink(url,name,iconimage,fanart,description,genre,date,showcontext,playlis
             description += '\n\nDate: %s' %date
         liz=xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
         if len(allinfo) <1:
-            liz.setInfo(type="Video", infoLabels={ "Title": name, "Plot": description, "Genre": genre, "dateadded": date })
+            liz.setInfo(type="Video", infoLabels={ "Title": name, "Plot": description, "Genre": genre, "director": director, "rating": rating, "writer": writer, "dateadded": date })
 
         else:
             liz.setInfo(type="Video", infoLabels=allinfo)
@@ -2293,7 +2370,7 @@ def addLink(url,name,iconimage,fanart,description,genre,date,showcontext,playlis
         
         if (not play_list) and not any(x in url for x in g_ignoreSetResolved) and not '$PLAYERPROXY$=' in url:#  (not url.startswith('plugin://plugin.video.f4mTester')):
             if regexs:
-                #print urllib.unquote_plus(regexs)
+                print urllib.unquote_plus(regexs)
                 if '$pyFunction:playmedia(' not in urllib.unquote_plus(regexs) and 'notplayable' not in urllib.unquote_plus(regexs) and 'listlink' not in  urllib.unquote_plus(regexs) :
                     #print 'setting isplayable',url, urllib.unquote_plus(regexs),url
                     liz.setProperty('IsPlayable', 'true')
@@ -2629,3 +2706,4 @@ elif mode==53:
     addon_log("Requesting JSON-RPC Items")
     pluginquerybyJSON(url)
     #xbmcplugin.endOfDirectory(int(sys.argv[1]))
+
