@@ -12,7 +12,7 @@ headers=dict({'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; rv:32.0) Gecko/2010010
 if not cacheDir.startswith(('smb://', 'nfs://', 'upnp://', 'ftp://')) and not os.path.isdir(cacheDir):
     os.mkdir(cacheDir)
 
-def addLink(url,name,iconimage,fanart,description,genre,date,showcontext,duration,total):
+def addLink(url,name,iconimage,fanart,description,genre,director,rating,writer,date,showcontext,duration,total):
         contextMenu = []
         url = 'plugin://plugin.video.dailymotion_com/?mode=playVideo&url='+url
         print 'adding link'
@@ -106,3 +106,4 @@ def cache(url, duration=0):
         fh.close()
         return content
        
+
